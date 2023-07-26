@@ -2,8 +2,7 @@
     <div class="container">
         <div class="py-5 text-center">
             <h2>Invites App Solution</h2>
-            <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                labore et dolore magna aliqua. Tincidunt nunc pulvinar sapien et ligula. Ac turpis egestas sed tempus.</p>
+            <p class="lead">By default there will be listed all affiliates, select a city and distance to filter the results.</p>
         </div>
 
         <Affiliates />

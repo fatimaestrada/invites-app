@@ -10,9 +10,7 @@
                 <div>
                     <h6 class="my-0 text-center pb-3">Nothing selected</h6>
                     <div style="display: inline">
-                        <small class="text-muted">Click on the</small>
-                        <span class="fa fa-plus ps-2 pe-2"></span>
-                        <small class="text-muted">button to see affiliate details</small>
+                        <small class="text-muted">Click on affiliate for details</small>
                     </div>
                 </div>
             </ul>
@@ -45,20 +43,55 @@
 
         <div class="col-md-8 order-md-1">
             <h4 class="mb-3">Affiliates lists</h4>
-            <table class="table table-hover">
+            <div class="row p-4">
+                <div class="form-group row">
+                    <label for="city" class="col-sm-2 col-form-label">From</label>
+                    <div class="col-sm-10">
+                        <select id="city" class="form-control" v-model="city" @change="filterResults()">
+                            <option selected disabled hidden value=''>Choose city...</option>
+                            <option value="CORK">Cork</option>
+                            <option value="DUBLIN">Dublin</option>
+                            <option value="GALWAY">Galway</option>
+                            <option value="LIMERICk">Limerick</option>
+                            <option value="error">Error</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="form-group row pt-4">
+                    <label for="distance" class="col-sm-2 col-form-label">Distance</label>
+                    <div class="col-sm-10">
+                        <input style="width: 100%;" type="range" class="form-control-range" min="0" max="200" step="5"
+                            id="distance" v-model="distance" @change="filterResults()">
+                        <span>{{ distance }} Km</span>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <table v-if="!affiliates.length" class="table table-hover">
+                <thead>
+                    <tr class="text-center">
+                        Ops! no results for yor serach. Try again
+                    </tr>
+                </thead>
+            </table>
+            <table v-else class="table table-hover">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Name</th>
-                        <th scope="col"></th>
+                        <th scope="col">Distance</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="affiliate of affiliates" :key="affiliate.id">
+                    <tr style="cursor: pointer;" v-for="affiliate of affiliates" :key="affiliate.id"
+                        @click="updateDetails(affiliate.id)">
                         <th scope="row">{{ affiliate.id }}</th>
-                        <td>{{ affiliate.name }}</td>
-                        <td><button class="btn btn-light" @click="updateDetails(affiliate.id)"><span
-                                    class="fa fa-2x fa-plus"></span></button></td>
+                        <td style="width: 70%;">{{ affiliate.name }}</td>
+                        <td v-if="affiliate.distance">{{ affiliate.distance }} Km</td>
+                        <td v-else> - </td>
                     </tr>
                 </tbody>
             </table>
@@ -75,6 +108,8 @@ export default {
         return {
             affiliates: [],
             affiliateDetails: null,
+            city: '',
+            distance: 100,
 
         };
     },
@@ -88,17 +123,34 @@ export default {
     },
     methods: {
         updateDetails(id) {
-            console.log('up;', id)
             if (id) {
                 axios
                     .get(`/api/affiliates/${id}`)
                     .then(response => {
-                        console.log(response.data)
                         this.affiliateDetails = response.data
                     })
             }
-
-
+        },
+        filterResults() {
+            if (city.value && distance.value) {
+                let params = {
+                    from: city.value, km: distance.value
+                }
+                axios
+                    .get('/api/affiliates/getByDistance', { params })
+                    .then(response => {
+                        this.affiliates = response.data
+                    }).catch((error) => {
+                        this.$swal({
+                            title: 'Error',
+                            icon: 'error',
+                            html: error.response.data.messages.map(error => error + '<br>'),
+                            showConfirmButton: false,
+                            timer: 2500
+                        })
+                        this.city = ''
+                    })
+            }
         }
     }
 }
