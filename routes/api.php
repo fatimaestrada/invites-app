@@ -17,4 +17,5 @@ use App\Http\Controllers\AffiliateController;
 
 Route::controller(AffiliateController::class)->group(function(){
     Route::get('/affiliates', 'list');
+    Route::get('/affiliates/{id}', 'show');
 });

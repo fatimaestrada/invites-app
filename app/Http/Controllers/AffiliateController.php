@@ -10,4 +10,10 @@ class AffiliateController extends Controller
     public function list(){
         return Affiliate::getAll()->sort();
     }
+
+    public function show($id)
+    {
+        return Affiliate::getAll()->where('id', $id)->first();
+    }
+
 }
