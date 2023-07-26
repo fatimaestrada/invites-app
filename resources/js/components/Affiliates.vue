@@ -78,9 +78,10 @@
                 </thead>
             </table>
             <table v-else class="table table-hover">
+                <caption>Showing {{ affiliates.length }} from {{ total }}</caption>
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col">Id</th>
                         <th scope="col">Name</th>
                         <th scope="col">Distance</th>
                     </tr>
@@ -110,13 +111,15 @@ export default {
             affiliateDetails: null,
             city: '',
             distance: 100,
+            total: ''
 
         };
     },
     async created() {
         try {
-            const res = await axios.get('/api/affiliates')
+            const res = await axios.get('/v1/affiliates')
             this.affiliates = res.data
+            this.total = res.data.length
         } catch (error) {
             console.log(error);
         }
@@ -125,7 +128,7 @@ export default {
         updateDetails(id) {
             if (id) {
                 axios
-                    .get(`/api/affiliates/${id}`)
+                    .get(`/v1/affiliates/${id}`)
                     .then(response => {
                         this.affiliateDetails = response.data
                     })
@@ -137,7 +140,7 @@ export default {
                     from: city.value, km: distance.value
                 }
                 axios
-                    .get('/api/affiliates/getByDistance', { params })
+                    .get('/v1/affiliates/getByDistance', { params })
                     .then(response => {
                         this.affiliates = response.data
                     }).catch((error) => {
