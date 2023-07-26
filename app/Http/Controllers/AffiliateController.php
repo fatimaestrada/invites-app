@@ -11,7 +11,7 @@ class AffiliateController extends Controller
 {
     public function list()
     {
-        return Affiliate::getAll()->sort();
+        return Affiliate::getAll()->sort()->flatten();
     }
 
     public function show($id)
