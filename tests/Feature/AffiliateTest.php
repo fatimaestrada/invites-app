@@ -43,4 +43,34 @@ class AffiliateTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    /** @test */
+    public function get_affiliate_by_distance_test()
+    {
+        $response = $this->call('GET', '/api/affiliates/getByDistance', ['from' => 'Dublin', 'km' => '100'])->assertJsonStructure([
+            [
+                'id',
+                'name',
+                'location' => [
+                    'latitude',
+                    'longitude'
+                ],
+                'distance'
+            ]
+        ]);
+
+        $response->assertStatus(200);
+    }
+
+        /** @test */
+        public function get_affiliate_by_distance_validation_test()
+        {
+            $response = $this->call('GET', '/api/affiliates/getByDistance', ['from' => 'Some City', 'km' => 'ABC']);
+            $responseFrom = $this->call('GET', '/api/affiliates/getByDistance', ['from' => 'Some City', 'km' => '100']);
+            $responseKm = $this->call('GET', '/api/affiliates/getByDistance', ['from' => 'Cork', 'km' => 'ANC']);
+            
+            $response->assertStatus(404);
+            $responseFrom->assertStatus(404);
+            $responseKm->assertStatus(404);
+        }
 }

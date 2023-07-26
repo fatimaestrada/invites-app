@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Affiliate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class AffiliateController extends Controller
 {
@@ -26,28 +27,41 @@ class AffiliateController extends Controller
      */
     public function distance_filter(Request $request)
     {
-        $cities = array_keys(getCities());
+        $cities = getCities();
 
         $validator = Validator::make($request->all(), [
             'from' => 'required',
             'km' => 'required|integer'
         ]);
-
-        $from = $request->from;
+        $from = strtoupper($request->from);
         $distanceKm = $request->km;
-        error_log(json_encode($cities));
 
         $validator->after(function ($validator) use ($from, $cities) {
-            if (!in_array(strtoupper($from), $cities)) {
+            $validCities = array_keys(getCities());
+            if (!in_array($from, $validCities)) {
                 $validator->errors()->add('from', 'Please enter a valid City');
             }
         });
 
-
         if ($validator->fails()) {
-            return $validator->errors();
+            throw new HttpResponseException(
+                response()->json([
+                    'status' => false,
+                    'messages' => $validator->errors()->all()
+                ], 404)
+            );
         };
 
-        return "From $from withinn $distanceKm km";
+
+        $affiliatesWithinDistance = array();
+
+        foreach (Affiliate::getAll()->sort() as $affiliate) {
+            $dist = calculate_distance($cities[$from], $affiliate->location);
+            if ($dist <= $distanceKm) array_push($affiliatesWithinDistance, $affiliate);
+
+            $affiliate->distance = number_format((float)$dist, 2);
+        }
+
+        return $affiliatesWithinDistance;
     }
 }
