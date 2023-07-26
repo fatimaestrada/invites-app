@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Collection;
 
 class Affiliate extends Model
 {
+    // protected $appends = [
+    //     'location'
+    // ];
+
     // A Workaround that takes the records from the `affiliates.txt` file and returns them as a Collection
 
     public static function getAll()
@@ -20,11 +24,16 @@ class Affiliate extends Model
             $rows->push((object)[
                 'id' => $row->affiliate_id,
                 'name' => $row->name,
-                'latitude' => $row->latitude,
-                'longitude' => $row->longitude
+                // if working with actual tables this would be the location attribute commented.
+                'location' => ['latitude' => $row->latitude, 'longitude' => $row->longitude]
             ]);
         }
 
         return $rows;
     }
+
+    // public function getLocationAttribute()
+    // {
+    //     return [ 'latitude' => $this->latitude,'longitude' => $this->longitude];
+    // }
 }

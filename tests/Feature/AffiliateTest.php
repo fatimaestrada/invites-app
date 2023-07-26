@@ -16,8 +16,10 @@ class AffiliateTest extends TestCase
             [
                 'id',
                 'name',
-                'latitude',
-                'longitude'
+                'location' => [
+                    'latitude',
+                    'longitude'
+                ]
             ],
         ]);
 
@@ -33,8 +35,10 @@ class AffiliateTest extends TestCase
         $response = $this->get("/api/affiliates/$id")->assertJsonStructure([
             'id',
             'name',
-            'latitude',
-            'longitude'
+            'location' => [
+                'latitude',
+                'longitude'
+            ]
         ]);
 
         $response->assertStatus(200);
