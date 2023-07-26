@@ -17,5 +17,6 @@ use App\Http\Controllers\AffiliateController;
 
 Route::controller(AffiliateController::class)->group(function(){
     Route::get('/affiliates', 'list');
+    Route::get('/affiliates/getByDistance', 'distance_filter')->whereNumber('km');
     Route::get('/affiliates/{id}', 'show');
 });

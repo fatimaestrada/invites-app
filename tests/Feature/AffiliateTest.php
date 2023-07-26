@@ -29,7 +29,6 @@ class AffiliateTest extends TestCase
     {
         $affiliatesIds = Affiliate::getAll()->pluck('id')->flatten()->toArray();
         $id = array_rand($affiliatesIds, 1);
-        error_log('id: '. $id);
 
         $response = $this->get("/api/affiliates/$id")->assertJsonStructure([
             'id',
