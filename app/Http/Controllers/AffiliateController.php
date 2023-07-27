@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Affiliate;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\ItemNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+
 
 class AffiliateController extends Controller
 {
@@ -16,7 +19,13 @@ class AffiliateController extends Controller
 
     public function show($id)
     {
-        return Affiliate::getAll()->where('id', $id)->first();
+
+        try {
+            return Affiliate::getAll()->where('id', $id)->firstOrFail();
+        
+        } catch (ItemNotFoundException $exception) {
+            return response('Affiliate id not found', 404);
+        }
     }
 
     /**
@@ -31,7 +40,7 @@ class AffiliateController extends Controller
 
         $validator = Validator::make($request->all(), [
             'from' => 'required',
-            'km' => 'required|integer'
+            'km' => 'required|integer|gt:0'
         ]);
         $from = strtoupper($request->from);
         $distanceKm = $request->km;

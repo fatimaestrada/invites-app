@@ -45,6 +45,18 @@ class AffiliateTest extends TestCase
     }
 
     /** @test */
+    public function fail_to_get_single_affiliate_details_test()
+    {
+        // Make sure the id is not on the list
+        $lastId = Affiliate::getAll()->pluck('id')->sortDesc()->flatten()->first();    
+        $lastId += 1;
+
+        $response = $this->get("/v1/affiliates/$lastId");
+
+        $response->assertStatus(404);
+    }
+
+    /** @test */
     public function get_affiliate_by_distance_test()
     {
         $response = $this->call('GET', '/v1/affiliates/getByDistance', ['from' => 'Dublin', 'km' => '100'])->assertJsonStructure([
@@ -62,15 +74,19 @@ class AffiliateTest extends TestCase
         $response->assertStatus(200);
     }
 
-        /** @test */
-        public function get_affiliate_by_distance_validation_test()
-        {
-            $response = $this->call('GET', '/v1/affiliates/getByDistance', ['from' => 'Some City', 'km' => 'ABC']);
-            $responseFrom = $this->call('GET', '/v1/affiliates/getByDistance', ['from' => 'Some City', 'km' => '100']);
-            $responseKm = $this->call('GET', '/v1/affiliates/getByDistance', ['from' => 'Cork', 'km' => 'ANC']);
-            
-            $response->assertStatus(404);
-            $responseFrom->assertStatus(404);
-            $responseKm->assertStatus(404);
-        }
+    /** @test */
+    public function get_affiliate_by_distance_validation_test()
+    {
+        $response = $this->call('GET', '/v1/affiliates/getByDistance', ['from' => 'Some City', 'km' => 'ABC']);
+        $responseFrom = $this->call('GET', '/v1/affiliates/getByDistance', ['from' => 'Some City', 'km' => '100']);
+        $responseKm = $this->call('GET', '/v1/affiliates/getByDistance', ['from' => 'Cork', 'km' => 'ANC']);
+        $responseKmNegative = $this->call('GET', '/v1/affiliates/getByDistance', ['from' => 'Cork', 'km' => '-20']);
+
+        $response->assertStatus(404);
+        $responseFrom->assertStatus(404);
+        $responseKm->assertStatus(404);
+        $responseKmNegative->assertStatus(404);
+    }
+
+        
 }
