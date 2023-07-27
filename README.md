@@ -1,66 +1,199 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# [🔗](https://invites-app-mfestrada.vercel.app/) Invites App
 
-## About Laravel
+This is a simple program that given a lists of affiliates `app/storage/affiliates.txt` displays them into a list, where the user can filter the records according to the location desired (City: Dublin), whitin a range of km (100km).
+The aim is to get listed only those whom meet the conditions to send an invitation to an event. :partying_face:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+&nbsp; 
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+###### Exaple of affiliates.txt
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```json
+{"latitude": "52.3191841", "affiliate_id": 3, "name": "Rudi Palmer", "longitude": "-8.5072391"}
+{"latitude": "52.366037", "affiliate_id": 16, "name": "Linzi Carver", "longitude": "-8.179118"}
+{"latitude": "52.833502", "affiliate_id": 25, "name": "Tasneem Wolfe", "longitude": "-8.522366"}
 
-## Learning Laravel
+```
+&nbsp; 
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+In this case just Rudi, Linzi and Tasneem will get invited since they are within 50 km from Limerick.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+![App Screenshot](https://raw.githubusercontent.com/fatimaestrada/invites-app/master/readme/list.png)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Laravel Sponsors
+The results are based on the data provided (lat, lon) on the affiliates.txt file and calculate the distance with the choosen city coordinates like this:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```php
+function calculate_distance($from, $to)
+{
+    $degtorad = 0.01745329;
+    $R = 6372.795477598;
 
-### Premium Partners
+    extract($from, EXTR_PREFIX_ALL, 'from');
+    extract($to, EXTR_PREFIX_ALL, 'to');
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
 
-## Contributing
+    // Simple validation of the values to proccess
+    if ($from_latitude == null || $from_longitude == null || $to_latitude == null || $to_longitude == null) {
+        return null;
+    }
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+    // If the positioning is the same theres no need to do the calculation
+    if ($from_latitude === $to_latitude && $from_longitude === $to_longitude) {
+        return 0;
+    }
 
-## Code of Conduct
+    $from_lat = $from_latitude * $degtorad;
+    $from_lon = $from_longitude * $degtorad;
+    $to_lat = $to_latitude * $degtorad;
+    $to_lon = $to_longitude * $degtorad;
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    $dist_km = $R * acos(sin($from_lat) * sin($to_lat) + cos($from_lat) * cos($to_lat) * cos($from_lon - $to_lon));
 
-## Security Vulnerabilities
+    return $dist_km;
+}
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
 
-## License
+[Distance Calculation Method used](https://en.wikipedia.org/wiki/Great-circle_distance)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+&nbsp; 
+
+&nbsp; 
+
+## 🛠 Getting Started
+Build with Laravel + VueJS, deploy to Vercel
+
+To get started with the project, follow the instructions below to set up the application and run it locally.
+
+Prerequisites
+- PHP (>= 7.4) and Composer installed on your system.
+- Node.js (>= 14.x) and npm installed on your system.
+
+
+#### Installation
+
+Clone the project
+
+```bash
+  git clone git@github.com:fatimaestrada/invites-app.git
+```
+
+Go to the project directory
+
+```bash
+  cd invites-app
+```
+
+Install Laravel backend dependencies
+
+```bash
+  composer install
+```
+
+Copy the example *.env*  file 
+```bash
+  cp .env.example .env
+```
+
+
+Generate the *APP_KEY*
+```bash
+  php artisan key:generate
+```
+
+Install Node dependencies
+
+```bash
+  npm install
+```
+
+To start you will need both Laravel + Vue running
+
+
+```bash
+  php artisan serve
+```
+    
+```bash
+  npm run dev
+```
+
+Now on your browser you could simply visit http://localhost:8000 or use something like Postman to access the API endpoints.
+
+
+&nbsp; 
+
+# Enpoints
+
+##### [🔗](https://www.postman.com/invites-app/workspace/invites-app/collection/28786356-6ef12979-cb89-469e-b32f-2275bb04ac9c) Postman Collection
+
+#### Get all affiliates
+```
+  GET /api/v1/affiliates
+```
+
+#### Get specific Affiliate by Id
+
+```
+  GET /api/v1/affiliates/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of affiliate |
+
+
+#### Get specific Affiliate by Id
+
+```
+  GET /api/v1/affiliates/getByDistance
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `from`      | `string` | **Required**. City Name |
+| `km`      | `number` | **Required**. Distance interval in KM |
+
+
+&nbsp; 
+
+
+## Running Tests
+
+To run tests, run the following command
+
+```bash
+  php artisan test
+```
+
+
+![Test Results](https://raw.githubusercontent.com/fatimaestrada/invites-app/master/readme/test.png)
+
+
+&nbsp; 
+
+
+## Deployment
+
+To deploy this I used [vercel](https://vercel.com/) that one the setup files are added, allows me to just run 
+
+```bash
+  vercel .
+```
+
+&nbsp; 
+
+&nbsp; 
+
+
+## Possible improvments / Upcoming features
+
+- Add external API like Geonames or Positionstrack to get city geolocation.
+
+- Replace coordinates strings `latitude, longitude `  with map component.
+
+- Include GitHub actions for unit test feedback.
+
+
